@@ -17,13 +17,35 @@ get '/new' do
 end
 
 post '/new' do
+  new_url = gen
+  result = db_retrieve(new_url, params["url"])
+  result = result.last
+  "<html>
+    <body>
+    Your new URL is <a href=\"#{result[1]}\">#{result[0]}</a> which redirects to <a href=\"#{result[1]}\">#{result[1]}</a>.<br />
+    Test #{result}.<br />
+    Return to <a href=/new>entry</a>.
+    <body>
+  </html>"
+end
+
+def gen
   new_url = []
   6.times do 
     new_url << ('A'..'Z').to_a.sample
   end
   new_url = new_url.join.to_s
-  db.execute "insert into url_shortener values ( ?, ? )", new_url, params["url"]
-  result = db.execute ( "select * from url_shortener" )
-  "#{result}"
-  "Your new URL is <a href=\"#{params["url"]}\">#{new_url}</a> which redirects to #{params["url"]}"
+  new_url
+end
+
+def db_retrieve(new, original)
+  db = SQLite3::Database.new('url.db')
+  #Must be a more concise way to do not exists
+  db.execute "insert into url_shortener values ( ?, ? )", new, original
+  #full_result = db.execute "select * from url_shortener"
+  #puts full_result
+  #return full_result
+  result = db.execute "select * from url_shortener where url_shortener.url = ?", original
+  puts result
+  return result
 end
