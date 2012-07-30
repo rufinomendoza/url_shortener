@@ -3,7 +3,7 @@ require 'sinatra'
 require 'sqlite3'
 
 db = SQLite3::Database.new('url.db')
-db.execute( "create table if not exists url_shortener (id TEXT PRIMARY KEY, url TEXT);" )
+db.execute( "create table if not exists url_shortener (id VARCHAR(250) PRIMARY KEY, url varchar(250));" )
 
 get '/new' do
   "<html>
@@ -39,7 +39,7 @@ def gen
 end
 
 def db_retrieve(new, original)
-  db = SQLite3::Database.new('url.db')
+  #db = SQLite3::Database.new('url.db')
   #Must be a more concise way to do not exists
   db.execute "insert into url_shortener values ( ?, ? )", new, original
   #full_result = db.execute "select * from url_shortener"
@@ -48,4 +48,10 @@ def db_retrieve(new, original)
   result = db.execute "select * from url_shortener where url_shortener.url = ?", original
   puts result
   return result
+end
+
+get '/:short_url' do |url|
+  db.execute("select url from url_shortener where url_shortener.url = ?", url)
+  destination_url = result[0][0]
+  redirect destination_url
 end
