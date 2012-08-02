@@ -19,13 +19,19 @@ class ShortenedURL
   def destination
     @destination_url
   end
-  #list of urls generated so far
-  #find by shortened url
+
+  def self.all
+    foo = @db.execute("select * from urls")
+    foo
+  end
 
   def self.find_by_shortened_url(short_url)
-    #fill me in
-    #and what the hell is self
-    #I should return an instance of ShortenedURL
+    if short_url &&
+      foo = @db.execute("select url from urls where shortened_url = ?", short_url)
+      foo = foo[0][0]
+      puts foo
+      return foo
+    end
   end
 
   private
@@ -58,4 +64,8 @@ end
 
 get '/:short_url' do |url|
   redirect ShortenedURL.find_by_shortened_url(url).destination
+end
+
+get '/all' do
+  "#{ShortenedURL.all}"
 end
